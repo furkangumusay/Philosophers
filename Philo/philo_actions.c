@@ -32,27 +32,47 @@ int	philo_sleep(t_philo *philo)
 	return (0);
 }
 
-int	acquire_forks(t_philo *philo)
+int acquire_forks(t_philo *philo)
 {
-	pthread_mutex_lock(&philo->sim->forks_mutex[philo->left_fork]);
-	print_status(philo, "has taken a left fork\n");
-	if (check_death(philo))
-		return (pthread_mutex_unlock(&philo->sim->forks_mutex[philo->left_fork]), 1);
-	if (philo->sim->philo_count == 1)
-	{
-		pthread_mutex_unlock(&philo->sim->forks_mutex[philo->left_fork]);
-		return (ft_usleep(philo->sim->time_to_die), 1);
-	}
-	pthread_mutex_lock(&philo->sim->forks_mutex[philo->right_fork]);
-	if (check_death(philo))
-		return (release_forks(philo), 1);
-	print_status(philo, "has taken a right fork\n");
-	return (0);
+    int first_fork;
+    int second_fork;
+
+	first_fork = philo->left_fork;
+	second_fork = philo->right_fork;
+    if (philo->left_fork > philo->right_fork)
+    {
+        first_fork = philo->right_fork;
+        second_fork = philo->left_fork;
+    }
+    pthread_mutex_lock(&philo->sim->forks_mutex[first_fork]);
+    print_status(philo, "has taken a fork\n");
+    if (check_death(philo))
+        return (pthread_mutex_unlock(&philo->sim->forks_mutex[first_fork]), 1);
+    if (philo->sim->philo_count == 1)
+    {
+        pthread_mutex_unlock(&philo->sim->forks_mutex[first_fork]);
+        return (ft_usleep(philo->sim->time_to_die), 1);
+    }
+    pthread_mutex_lock(&philo->sim->forks_mutex[second_fork]);
+    print_status(philo, "has taken a fork\n");
+    if (check_death(philo))
+        return (release_forks(philo), 1);
+    return (0);
 }
 
-int	release_forks(t_philo *philo)
+int release_forks(t_philo *philo)
 {
-	pthread_mutex_unlock(&philo->sim->forks_mutex[philo->left_fork]);
-	pthread_mutex_unlock(&philo->sim->forks_mutex[philo->right_fork]);
+    int first_fork;
+    int second_fork;
+
+	first_fork = philo->left_fork;
+	second_fork = philo->right_fork;
+    if (philo->left_fork > philo->right_fork)
+    {
+        first_fork = philo->right_fork;
+        second_fork = philo->left_fork;
+    }
+    pthread_mutex_unlock(&philo->sim->forks_mutex[second_fork]);
+    pthread_mutex_unlock(&philo->sim->forks_mutex[first_fork]);
 	return (0);
 }

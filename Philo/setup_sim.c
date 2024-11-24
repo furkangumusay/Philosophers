@@ -44,9 +44,9 @@ static long     ft_atol(const char *str)
 		if (!is_digit(*str))
 			return (0);
         nbr = (nbr * 10) + (*str++ - '0');
+        i++;
 		if (i > 10 || nbr > INT_MAX)
 			return (0);
-        i++;
     }
     return (nbr);
 }
